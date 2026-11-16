@@ -2,12 +2,14 @@
 """Preprocessing otomatis dataset AI4I 2020 Predictive Maintenance.
 
 Langkah-langkah sama dengan notebook Eksperimen_Aunuun-Jeffry-Mahbuubi.ipynb:
-  1. membuang kolom identitas (UDI, Product ID),
-  2. membuang kolom mode kegagalan (TWF, HDF, PWF, OSF, RNF) karena kolom itu
-     menentukan nilai target sehingga menjadi kebocoran data,
-  3. membagi data 80/20 secara stratifikasi (random_state=42),
-  4. encoding one-hot untuk kolom Type dan standarisasi lima kolom numerik,
-     keduanya dipelajari hanya dari data latih.
+  1. Nilai kosong dan duplikat: diperiksa dan dilaporkan, tidak ada baris yang dihapus.
+  2. Membuang kolom identitas (UDI, Product ID).
+  3. Membuang kolom mode kegagalan (TWF, HDF, PWF, OSF, RNF): kolom itu menentukan nilai
+     target sehingga menjadi kebocoran data.
+  4. Pembagian data 80% latih dan 20% uji, stratifikasi pada target, random_state=42.
+  5. Encoding kolom Type dengan one-hot (Type_H, Type_L, Type_M).
+  6. Standarisasi lima kolom numerik dengan StandardScaler.
+  Langkah 5 dan 6 dipelajari hanya dari data latih, lalu dipakai untuk data uji.
 
 Pemakaian:
     python automate_Aunuun-Jeffry-Mahbuubi.py --raw ../ai4i2020_raw/ai4i2020.csv --out ai4i2020_preprocessing
@@ -63,6 +65,9 @@ def preprocess(raw_csv, out_dir):
     """
     # berkas mentah diawali BOM UTF-8, maka dibaca dengan utf-8-sig
     data = pd.read_csv(raw_csv, encoding="utf-8-sig")
+    # langkah 1: laporan nilai kosong dan duplikat; data tidak diubah
+    print("Nilai kosong: %d | Baris duplikat: %d"
+          % (int(data.isna().sum().sum()), int(data.duplicated().sum())))
     data = data.drop(columns=KOLOM_IDENTITAS + KOLOM_MODE_KEGAGALAN)
 
     fitur = data.drop(columns=[TARGET])
